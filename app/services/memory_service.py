@@ -1,41 +1,52 @@
 from app.database.mongodb import db
 from bson import ObjectId
 from datetime import datetime
-from app.services.embedding_service import (
-    generate_embedding
-)
-def create_memory(user_id, memory, importance=0.5, category="general"):
+from app.services.embedding_service import generate_embedding
+from app.services.qdrant_service import insert_memory
+def create_memory(
+    user_id,
+    memory,
+    importance=0.5,
+    category="general"
+):
+
     embedding = generate_embedding(
-    memory
+        memory
     )
 
-    existing_memory = db.memories.find_one({
+    result = db.memories.insert_one({
         "user_id": user_id,
-        "memory": memory
+        "memory": memory,
+        "importance": importance,
+        "category": category,
+        "created_at": datetime.utcnow()
     })
 
-    if existing_memory:
-        return "already_exists"
+    memory_id = str(
+        result.inserted_id
+    )
 
-    result = db.memories.insert_one({
-    "user_id": user_id,
-    "memory": memory,
-    "importance": importance,
-    "category": category,
-    "embedding": embedding,
-    "created_at": datetime.utcnow()
-})
+    # Insert vector into Qdrant
+    insert_memory(
+        abs(hash(memory_id)),
+        embedding,
+        user_id,
+        memory
+    )
 
-    return str(result.inserted_id)
+    return memory_id
 
 
 def get_memories(user_id):
 
     memories = list(
-        db.memories.find(
-            {"user_id": user_id},
-            {"_id": 0}
-        ).sort("importance", -1)
+      db.memories.find(
+    {"user_id": user_id},
+    {
+        "_id": 0,
+        "embedding": 0
+    }
+)
     )
 
     return memories

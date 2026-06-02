@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from app.services.categorizer import categorize_memory
-
+from app.services.semantic_search import (
+    semantic_search
+)
 from app.models.memory import (
     MemoryCreate,
     ChatRequest
@@ -103,3 +105,13 @@ def remove_memory(memory_id: str):
     return {
         "message": "Memory not found"
     }
+@router.get("/search/{user_id}")
+def search_memory(
+    user_id: str,
+    query: str
+):
+
+    return semantic_search(
+        user_id,
+        query
+    )
