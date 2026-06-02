@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from app.services.categorizer import categorize_memory
 
 from app.models.memory import (
     MemoryCreate,
@@ -8,6 +9,7 @@ from app.models.memory import (
 from app.services.memory_service import (
     create_memory,
     get_memories,
+    get_memories_by_category,
     delete_memory
 )
 
@@ -19,11 +21,35 @@ from app.services.fake_llm import (
     generate_response
 )
 
+from app.services.importance_service import calculate_importance
+from app.services.memory_extractor import extract_memory
+
 router = APIRouter()
 
 
 @router.post("/chat")
 def chat(data: ChatRequest):
+
+    memory = extract_memory(
+        data.message
+    )
+
+    if memory:
+
+        importance = calculate_importance(
+            memory
+        )
+
+        category = categorize_memory(
+            memory
+        )
+
+        create_memory(
+            data.user_id,
+            memory,
+            importance,
+            category
+        )
 
     context = get_user_context(
         data.user_id
@@ -37,7 +63,6 @@ def chat(data: ChatRequest):
     return {
         "response": response
     }
-
 
 @router.post("/memory")
 def save_memory(data: MemoryCreate):
@@ -53,10 +78,16 @@ def save_memory(data: MemoryCreate):
     }
 
 
-@router.get("/memory/{user_id}")
-def fetch_memories(user_id: str):
+@router.get("/memory/{user_id}/{category}")
+def fetch_memories_by_category(
+    user_id: str,
+    category: str
+):
 
-    return get_memories(user_id)
+    return get_memories_by_category(
+        user_id,
+        category
+    )
 
 
 @router.delete("/memory/{memory_id}")

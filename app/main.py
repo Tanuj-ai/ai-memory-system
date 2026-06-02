@@ -12,3 +12,14 @@ def home():
     return {
         "message": "AI Memory System Running"
     }
+
+from app.database.mongodb import db
+
+@app.get("/all")
+def all_memories():
+    return list(
+        db.memories.find(
+            {},
+            {"_id": 0}
+        )
+    )
