@@ -17,18 +17,16 @@ def semantic_search(
     )
 
     results = search_memories(
-        query_embedding
-    )
+    user_id,
+    query_embedding
+)
 
     response = []
 
     for hit in results:
 
         response.append({
-            "memory":
-                hit.payload["memory"],
-            "score":
-                hit.score
-        })
+    "memory": hit.payload["memory"]
+})
 
     return response

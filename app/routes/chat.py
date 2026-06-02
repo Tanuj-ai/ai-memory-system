@@ -1,8 +1,6 @@
+
 from fastapi import APIRouter
-from app.services.categorizer import categorize_memory
-from app.services.semantic_search import (
-    semantic_search
-)
+
 from app.models.memory import (
     MemoryCreate,
     ChatRequest
@@ -10,21 +8,33 @@ from app.models.memory import (
 
 from app.services.memory_service import (
     create_memory,
-    get_memories,
     get_memories_by_category,
     delete_memory
 )
 
-from app.services.context_service import (
-    get_user_context
+from app.services.memory_extractor import (
+    extract_memory
 )
 
-from app.services.fake_llm import (
+from app.services.importance_service import (
+    calculate_importance
+)
+
+from app.services.categorizer import (
+    categorize_memory
+)
+
+from app.services.semantic_search import (
+    semantic_search
+)
+
+from app.services.prompt_builder import (
+    build_prompt
+)
+
+from app.services.gemini_service import (
     generate_response
 )
-
-from app.services.importance_service import calculate_importance
-from app.services.memory_extractor import extract_memory
 
 router = APIRouter()
 
@@ -53,13 +63,19 @@ def chat(data: ChatRequest):
             category
         )
 
-    context = get_user_context(
-        data.user_id
+    memories = semantic_search(
+        data.user_id,
+        data.message
     )
 
-    response = generate_response(
+    prompt = build_prompt(
         data.message,
-        context
+        memories
+    )
+    
+
+    response = generate_response(
+        prompt
     )
 
     return {

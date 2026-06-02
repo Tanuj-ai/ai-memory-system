@@ -1,8 +1,14 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
+    Filter,
+    FieldCondition,
+    MatchValue
+)
+from qdrant_client.models import (
     VectorParams,
     Distance,
     PointStruct
+    
 )
 
 client = QdrantClient(
@@ -40,23 +46,34 @@ def insert_memory(
                 vector=embedding,
                 payload={
                     "user_id": user_id,
-                    "memory": memory
+                    "memory": memory,
+                    "category": category,
+                    "importance": importance
                 }
             )
         ]
     )
 
 def search_memories(
+    user_id,
     query_embedding,
-    limit=3
+    limit=5
 ):
-
-    print("QDRANT SEARCH FUNCTION LOADED")
 
     results = client.query_points(
         collection_name="memories",
         query=query_embedding,
-        limit=limit
+        limit=limit,
+        query_filter=Filter(
+            must=[
+                FieldCondition(
+                    key="user_id",
+                    match=MatchValue(
+                        value=user_id
+                    )
+                )
+            ]
+        )
     )
 
     return results.points
