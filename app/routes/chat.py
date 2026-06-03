@@ -1,5 +1,8 @@
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter
+from app.services.auth_service import (
+    get_current_user
+)
 
 from app.models.memory import (
     MemoryCreate,
@@ -40,7 +43,12 @@ router = APIRouter()
 
 
 @router.post("/chat")
-def chat(data: ChatRequest):
+def chat(
+    data: ChatRequest,
+    username: str = Depends(
+        get_current_user
+    )
+):
 
     memory = extract_memory(
         data.message
@@ -57,14 +65,14 @@ def chat(data: ChatRequest):
         )
 
         create_memory(
-            data.user_id,
+            username,
             memory,
             importance,
             category
         )
 
     memories = semantic_search(
-        data.user_id,
+        username,
         data.message
     )
 
@@ -72,7 +80,6 @@ def chat(data: ChatRequest):
         data.message,
         memories
     )
-    
 
     response = generate_response(
         prompt
@@ -82,11 +89,17 @@ def chat(data: ChatRequest):
         "response": response
     }
 
+
 @router.post("/memory")
-def save_memory(data: MemoryCreate):
+def save_memory(
+    data: MemoryCreate,
+    username: str = Depends(
+        get_current_user
+    )
+):
 
     memory_id = create_memory(
-        data.user_id,
+        username,
         data.memory
     )
 
@@ -96,24 +109,31 @@ def save_memory(data: MemoryCreate):
     }
 
 
-@router.get("/memory/{user_id}/{category}")
+@router.get("/memory/{category}")
 def fetch_memories_by_category(
-    user_id: str,
-    category: str
+    category: str,
+    username: str = Depends(
+        get_current_user
+    )
 ):
 
     return get_memories_by_category(
-        user_id,
+        username,
         category
     )
 
 
 @router.delete("/memory/{memory_id}")
-def remove_memory(memory_id: str):
+def remove_memory(
+    memory_id: str
+):
 
-    deleted = delete_memory(memory_id)
+    deleted = delete_memory(
+        memory_id
+    )
 
     if deleted:
+
         return {
             "message": "Memory deleted"
         }
@@ -121,13 +141,17 @@ def remove_memory(memory_id: str):
     return {
         "message": "Memory not found"
     }
-@router.get("/search/{user_id}")
+
+
+@router.get("/search")
 def search_memory(
-    user_id: str,
-    query: str
+    query: str,
+    username: str = Depends(
+        get_current_user
+    )
 ):
 
     return semantic_search(
-        user_id,
+        username,
         query
     )

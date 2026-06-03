@@ -2,6 +2,8 @@ from passlib.context import CryptContext
 from app.database.mongodb import db
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 
 SECRET_KEY = "mysecretkey123"
 ALGORITHM = "HS256"
@@ -9,6 +11,10 @@ ALGORITHM = "HS256"
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
+)
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="login"
 )
 
 
@@ -86,3 +92,23 @@ def verify_token(token):
     except JWTError:
 
         return None
+
+
+def get_current_user(
+    token: str = Depends(
+        oauth2_scheme
+    )
+):
+
+    username = verify_token(
+        token
+    )
+
+    if not username:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+    return username

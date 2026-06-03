@@ -28,13 +28,13 @@ def create_memory(
 
     # Insert vector into Qdrant
     insert_memory(
-        abs(hash(memory_id)),
-        embedding,
-        user_id,
-        memory
-    )
-
-    return memory_id
+    abs(hash(memory_id)),
+    embedding,
+    user_id,
+    memory,
+    category,
+    importance
+)
 
 
 def get_memories(user_id):

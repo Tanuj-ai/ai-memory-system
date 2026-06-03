@@ -35,7 +35,9 @@ def insert_memory(
     memory_id,
     embedding,
     user_id,
-    memory
+    memory,
+    category,
+    importance
 ):
 
     client.upsert(
