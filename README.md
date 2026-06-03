@@ -91,7 +91,7 @@ AI-Memory-System/
 │   ├── database/
 │   └── main.py
 │
-├── screenshots/
+├── Screenshots/
 │
 ├── requirements.txt
 ├── README.md
@@ -104,7 +104,7 @@ AI-Memory-System/
 
 ## Swagger API Documentation
 
-![Swagger Home](screenshots/swagger-home.png)
+![Swagger Home](Screenshots/swagger-home.png)
 
 ---
 
@@ -112,7 +112,7 @@ AI-Memory-System/
 
 Register a new user.
 
-![Register](screenshots/register.png)
+![Register](Screenshots/register.png)
 
 ---
 
@@ -120,7 +120,7 @@ Register a new user.
 
 Generate JWT token after successful login.
 
-![Login](screenshots/login.png)
+![Login](Screenshots/login.png)
 
 ---
 
@@ -128,7 +128,7 @@ Generate JWT token after successful login.
 
 Authenticate protected routes using JWT.
 
-![Authorize](screenshots/authorize.png)
+![Authorize](Screenshots/authorize.png)
 
 ---
 
@@ -136,7 +136,7 @@ Authenticate protected routes using JWT.
 
 Store user memories in MongoDB and Qdrant.
 
-![Save Memory](screenshots/save-memory.png)
+![Save Memory](Screenshots/save-memory.png)
 
 ---
 
@@ -144,7 +144,7 @@ Store user memories in MongoDB and Qdrant.
 
 Retrieve stored memories.
 
-![Memory Retrieval](screenshots/get-memory.png)
+![Memory Retrieval](Screenshots/get-memory.png)
 
 ---
 
@@ -152,7 +152,7 @@ Retrieve stored memories.
 
 Search memories using vector similarity.
 
-![Search Memory](screenshots/search-memory.png)
+![Search Memory](Screenshots/search-memory.png)
 
 ---
 
@@ -160,7 +160,7 @@ Search memories using vector similarity.
 
 AI responds using stored user memories.
 
-![Chat Response](screenshots/chat-response.png)
+![Chat Response](Screenshots/chat-response.png)
 
 ---
 
@@ -168,7 +168,7 @@ AI responds using stored user memories.
 
 Stored memories in MongoDB.
 
-![MongoDB](screenshots/mongodb.png)
+![MongoDB](Screenshots/mongodb.png)
 
 ---
 
@@ -176,7 +176,7 @@ Stored memories in MongoDB.
 
 Stored embeddings in Qdrant.
 
-![Qdrant](screenshots/qdrant.png)
+![Qdrant](Screenshots/qdrant.png)
 
 ---
 
