@@ -1,4 +1,5 @@
 from qdrant_client import QdrantClient
+from qdrant_client.models import PointIdsList
 from qdrant_client.models import (
     Filter,
     FieldCondition,
@@ -79,3 +80,15 @@ def search_memories(
     )
 
     return results.points
+
+
+def delete_memory_vector(
+    point_id
+):
+
+    client.delete(
+        collection_name="memories",
+        points_selector=PointIdsList(
+            points=[point_id]
+        )
+    )

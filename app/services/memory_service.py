@@ -15,16 +15,42 @@ def create_memory(
     )
 
     result = db.memories.insert_one({
-        "user_id": user_id,
-        "memory": memory,
-        "importance": importance,
-        "category": category,
-        "created_at": datetime.utcnow()
-    })
+    "user_id": user_id,
+    "memory": memory,
+    "importance": importance,
+    "category": category,
+    "created_at": datetime.utcnow()
+})
 
     memory_id = str(
         result.inserted_id
     )
+
+    qdrant_id = abs(
+        hash(memory_id)
+    )
+
+    db.memories.update_one(
+        {
+            "_id": result.inserted_id
+        },
+        {
+            "$set": {
+                "qdrant_id": qdrant_id
+            }
+        }
+    )
+
+    insert_memory(
+        qdrant_id,
+        embedding,
+        user_id,
+        memory,
+        category,
+        importance
+    )
+
+    return memory_id
 
     # Insert vector into Qdrant
     insert_memory(
