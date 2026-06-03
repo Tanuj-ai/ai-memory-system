@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
-
+from app.services.update_detector import (
+    is_update_request
+)
 from app.services.auth_service import (
     get_current_user
 )
@@ -78,7 +80,35 @@ def chat(
         return {
             "response": "Memory not found."
         }
+    if is_update_request(
+    data.message
+        ):
 
+        memories = get_memories_by_category(
+            username,
+            "general"
+        )
+
+        for memory in memories:
+
+            if "sport" in memory["memory"].lower():
+
+                # delete old memory
+                memory_doc = find_memory_by_text(
+                    username,
+                    memory["memory"]
+                )
+
+                if memory_doc:
+
+                    delete_memory(
+                        str(memory_doc["_id"])
+                    )
+
+        return {
+            "response":
+            "Old preference removed. Tell me the new one."
+        }
     # Extract and save memory
     memory = extract_memory(
         data.message
