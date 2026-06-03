@@ -8,17 +8,16 @@ from app.models.memory import (
     MemoryCreate,
     ChatRequest
 )
+
 from app.services.forget_detector import (
     is_forget_request
 )
 
 from app.services.memory_service import (
-    find_memory_by_text
-)
-from app.services.memory_service import (
     create_memory,
     get_memories_by_category,
-    delete_memory
+    delete_memory,
+    find_memory_by_text
 )
 
 from app.services.memory_extractor import (
@@ -56,6 +55,31 @@ def chat(
     )
 ):
 
+    # Forget memory request
+    if is_forget_request(
+        data.message
+    ):
+
+        memory_to_delete = find_memory_by_text(
+            username,
+            data.message
+        )
+
+        if memory_to_delete:
+
+            delete_memory(
+                str(memory_to_delete["_id"])
+            )
+
+            return {
+                "response": "Memory deleted."
+            }
+
+        return {
+            "response": "Memory not found."
+        }
+
+    # Extract and save memory
     memory = extract_memory(
         data.message
     )
@@ -76,35 +100,20 @@ def chat(
             importance,
             category
         )
-    if is_forget_request(
-    data.message
-    ):
 
-        memory = find_memory_by_text(
-        username,
-        data.message
-    )
-
-    if memory:
-
-        delete_memory(
-            str(memory["_id"])
-        )
-
-        return {
-            "response":
-            "Memory deleted."
-        }
+    # Search memories
     memories = semantic_search(
         username,
         data.message
     )
 
+    # Build prompt
     prompt = build_prompt(
         data.message,
         memories
     )
 
+    # Gemini response
     response = generate_response(
         prompt
     )
