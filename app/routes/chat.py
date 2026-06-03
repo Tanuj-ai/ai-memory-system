@@ -8,7 +8,13 @@ from app.models.memory import (
     MemoryCreate,
     ChatRequest
 )
+from app.services.forget_detector import (
+    is_forget_request
+)
 
+from app.services.memory_service import (
+    find_memory_by_text
+)
 from app.services.memory_service import (
     create_memory,
     get_memories_by_category,
@@ -70,7 +76,25 @@ def chat(
             importance,
             category
         )
+    if is_forget_request(
+    data.message
+    ):
 
+        memory = find_memory_by_text(
+        username,
+        data.message
+    )
+
+    if memory:
+
+        delete_memory(
+            str(memory["_id"])
+        )
+
+        return {
+            "response":
+            "Memory deleted."
+        }
     memories = semantic_search(
         username,
         data.message

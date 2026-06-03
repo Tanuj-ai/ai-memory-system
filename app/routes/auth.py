@@ -1,13 +1,7 @@
-from fastapi import APIRouter, Header
-from typing import Annotated
-from fastapi import Header
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
-from fastapi.security import OAuth2PasswordBearer
-
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="login"
-)
 from app.models.user import (
     UserRegister,
     UserLogin
@@ -22,6 +16,10 @@ from app.services.auth_service import (
 )
 
 router = APIRouter()
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="login"
+)
 
 
 @router.post("/register")
@@ -38,40 +36,39 @@ def register(user: UserRegister):
     }
 
 
+
 @router.post("/login")
-def login(user: UserLogin):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
 
     db_user = get_user(
-        user.username
+        form_data.username
     )
 
     if not db_user:
-
         return {
             "message": "User not found"
         }
 
     valid = verify_password(
-        user.password,
+        form_data.password,
         db_user["password"]
     )
 
     if not valid:
-
         return {
             "message": "Invalid password"
         }
 
     token = create_access_token(
-        user.username
+        form_data.username
     )
 
     return {
         "access_token": token,
         "token_type": "bearer"
     }
-
-
 
 
 @router.get("/me")
@@ -94,10 +91,15 @@ def me(
     return {
         "username": username
     }
+
+
 @router.get("/test-header")
 def test_header(
-    authorization: str = Header(None)
+    token: str = Depends(
+        oauth2_scheme
+    )
 ):
+
     return {
-        "authorization": authorization
+        "token": token
     }

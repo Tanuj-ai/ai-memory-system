@@ -8,10 +8,23 @@ from qdrant_client.models import (
 from qdrant_client.models import (
     VectorParams,
     Distance,
-    PointStruct
-    
+    PointStruct,
+    PointIdsList
+)
+from qdrant_client.models import (
+    PointIdsList
 )
 
+def delete_memory_vector(
+    point_id
+):
+
+    client.delete(
+        collection_name="memories",
+        points_selector=PointIdsList(
+            points=[point_id]
+        )
+    )
 client = QdrantClient(
     host="localhost",
     port=6333
@@ -80,7 +93,16 @@ def search_memories(
     )
 
     return results.points
+def delete_memory_vector(
+    point_id
+):
 
+    client.delete(
+        collection_name="memories",
+        points_selector=PointIdsList(
+            points=[point_id]
+        )
+    )
 
 def delete_memory_vector(
     point_id

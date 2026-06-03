@@ -61,7 +61,18 @@ def create_memory(
     category,
     importance
 )
+def find_memory_by_text(
+    user_id,
+    text
+):
 
+    return db.memories.find_one({
+        "user_id": user_id,
+        "memory": {
+            "$regex": text,
+            "$options": "i"
+        }
+    })
 
 def get_memories(user_id):
 
@@ -78,13 +89,36 @@ def get_memories(user_id):
     return memories
 
 
-def delete_memory(memory_id):
+def delete_memory(
+    memory_id
+):
 
-    result = db.memories.delete_one(
-        {"_id": ObjectId(memory_id)}
+    memory = db.memories.find_one(
+        {
+            "_id": ObjectId(memory_id)
+        }
     )
 
-    return result.deleted_count
+    if not memory:
+        return False
+
+    from app.services.qdrant_service import (
+        delete_memory_vector
+    )
+
+    if "qdrant_id" in memory:
+
+        delete_memory_vector(
+            memory["qdrant_id"]
+        )
+
+    result = db.memories.delete_one(
+        {
+            "_id": ObjectId(memory_id)
+        }
+    )
+
+    return result.deleted_count > 0
 def get_memories_by_category(user_id, category):
 
     memories = list(
